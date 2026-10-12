@@ -16,3 +16,10 @@ logs/
 *.log
 app.log
 
+# Other files
+full_project_deep_dive.md
+isro points.txt
+
+# Personal notes kept locally, not for the public repo
+resume_gap_analysis.md
+role_targeted_optimization.md
