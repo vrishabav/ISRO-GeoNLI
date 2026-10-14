@@ -156,6 +156,8 @@ import { useContext } from "react";
 import { ThemeContext } from "./utils/style";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "https://isrogeonli.in:5000/api";
+
 // Import Inter font
 //import "./fonts.css"; // Create this file and add @import for Inter from Google Fonts
 
@@ -166,7 +168,7 @@ const Login = () => {
   const handleSubmit = async (v) => {
     try {
       console.log(v);
-      const res = await axios.post("https://isrogeonli.in:5000/api/login", v, {
+      const res = await axios.post(`${API_URL}/login`, v, {
         headers: { "Content-Type": "application/json" },
       });
 

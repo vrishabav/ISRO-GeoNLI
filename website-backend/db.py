@@ -6,7 +6,6 @@ load_dotenv()
 
 
 MONGODB_URL = os.getenv("DATABASE_URL")
-print(MONGODB_URL)
 
 client = AsyncIOMotorClient(MONGODB_URL)
 

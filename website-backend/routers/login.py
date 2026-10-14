@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from db import get_collection
-import jwt
+from jose import jwt
 import os
 from dotenv import load_dotenv
 

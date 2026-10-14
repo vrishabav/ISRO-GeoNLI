@@ -5,6 +5,8 @@ import { UploadOutlined, SendOutlined, PlusOutlined, MenuOutlined } from "@ant-d
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
+const API_URL = import.meta.env.VITE_API_URL || "https://isrogeonli.in:5000/api";
+
 
 const Home = () => {
   const { darkMode, toggleDarkMode } = useContext(ThemeContext);
@@ -105,7 +107,7 @@ const Home = () => {
       console.log([...formData.entries()]);
 
 
-      const res = await axios.post("https://isrogeonli.in:5000/api/chat", formData, {
+      const res = await axios.post(`${API_URL}/chat`, formData, {
         headers: { "Content-Type": "multipart/form-data", "Authorization" : `Bearer ${token}` },
       });
 
@@ -124,7 +126,7 @@ const Home = () => {
     try{
       const token = sessionStorage.getItem("token");
       console.log(token);
-      const res = await axios.get("https://isrogeonli.in:5000/api/chat-history",{
+      const res = await axios.get(`${API_URL}/chat-history`,{
         headers:{"Authorization":`Bearer ${token}`}
       });
       console.log(res.data);
@@ -142,7 +144,7 @@ const Home = () => {
       const token = sessionStorage.getItem("token");
       sessionStorage.removeItem("currentSessionId");
       sessionStorage.setItem("currentSessionId", sessionId);
-      const res = await axios.get(`https://isrogeonli.in:5000/api/get-history`, {
+      const res = await axios.get(`${API_URL}/get-history`, {
         headers: { "Authorization": `Bearer ${token}` },
         params: { sessionId: sessionId }
       });

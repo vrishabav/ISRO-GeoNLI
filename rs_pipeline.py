@@ -86,7 +86,7 @@ class RSPipeline:
             List of detection dictionaries
         """
         return self.grounding.ground_objects(
-            image, query, score_threshold
+            image, query, show_visualization=False
         )
     
     def answer_question(self, image, query, detections=None, 

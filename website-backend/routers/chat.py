@@ -11,15 +11,7 @@ from jose import jwt, JWTError
 import requests
 import base64
 import json
-import google.generativeai as genai
 import httpx
-
-
-
-# Usage example:
-# api_key = "your-google-ai-studio-api-key"
-# result = call_gemini_ai(api_key)
-# print(result)
 
 
 load_dotenv()
@@ -29,7 +21,7 @@ router = APIRouter()
 sessions_collection = db["sessions"]
 messages_collection = db["messages"]
 
-api_key = os.getenv("GEMINI_API_KEY")
+ISRO_API_URL = os.getenv("ISRO_API_URL", "http://localhost:8080")
 
 s3_client = boto3.client(
     "s3",
@@ -58,7 +50,7 @@ async def get_current_user_email(credentials: HTTPAuthorizationCredentials = Dep
         raise HTTPException(status_code=401, detail="Invalid token")
 
 async def call_external_api(instruction: dict):
-    url = "https://a2f7b83599770.notebooks.jarvislabs.net/proxy/8080/query"
+    url = f"{ISRO_API_URL}/query"
     payload = instruction
 
     try:
@@ -90,6 +82,8 @@ async def chat_endpoint(
     existing_session = await sessions_collection.find_one({"sessionId": session_id})
 
     if not existing_session:
+        if not image:
+            raise HTTPException(status_code=400, detail="An image is required to start a new session")
         file_name = f"{int(time())}_{image.filename}"
         s3_client.upload_fileobj(
             BytesIO(contents),

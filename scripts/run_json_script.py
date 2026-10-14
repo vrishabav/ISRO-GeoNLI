@@ -42,18 +42,16 @@ def format_grounding_response(detections):
     """
     Convert detections to the required grounding response format.
     
-    Expected format: [{"object-id": "string", "obbox": [cx, cy, w, h, angle]}]
-    OBB format from pipeline: ((cx, cy), (w, h), angle)
+    Output format matches the API: [{"object-id": "string", "obbox": [x1, y1, x2, y2, x3, y3, x4, y4]}]
+    OBB format from pipeline: 8-point polygon under the "obbox" key
     """
     response = []
     for det in detections:
-        # Extract OBB: ((cx, cy), (w, h), angle)
-        obb = det.get("obb")
-        if obb:
-            (cx, cy), (w, h), angle = obb
+        obb = det.get("obbox")
+        if isinstance(obb, (list, tuple)) and len(obb) == 8:
             response.append({
-                "object-id": str(det.get("id", "")),
-                "obbox": [float(cx), float(cy), float(w), float(h), float(angle)]
+                "object-id": str(det.get("object-id", "")),
+                "obbox": [float(v) for v in obb]
             })
     return response
 
@@ -96,7 +94,7 @@ def process_queries(data, pipeline=None, output_path="output.json"):
     # Initialize pipeline if not provided
     if pipeline is None:
         try:
-            pipeline = RSPipeline(vlm_model_id="Qwen/Qwen3-VL-8B-Instruct")
+            pipeline = RSPipeline()
         except Exception as e:
             print(f"Pipeline initialization failed: {e}")
             return None
@@ -237,7 +235,7 @@ def run_from_dict(data, output_path="output.json", pipeline=None):
     # Initialize pipeline if not provided
     if pipeline is None:
         try:
-            pipeline = RSPipeline(vlm_model_id="Qwen/Qwen3-VL-8B-Instruct")
+            pipeline = RSPipeline()
         except Exception as e:
             print(f"Pipeline initialization failed: {e}")
             return None

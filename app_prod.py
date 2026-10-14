@@ -7,6 +7,7 @@ Run: uvicorn app_prod:app --host 0.0.0.0 --port 8080
 
 from typing import Optional, Dict, Any
 import base64
+import cv2
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 
 from utils.visualization import annotate_image_with_boxes
@@ -418,9 +419,6 @@ async def vqa_endpoint(payload: dict):
                     "id": d.get("object-id", ""),
                     "obbox": polygon
                 })
-
-            elif "obbox" in d:
-                parsed_dets.append(d)
 
             else:
                 raise KeyError(f"No obbox found in detection: {d}")

@@ -23,32 +23,36 @@ Training notes:
 * QLoRA (4-bit NF4, FlashAttention-2, DDP via torchrun) on Qwen3-VL-8B. LoRA ranks 2-16 swept over three rounds on VRSBench, XLRS-Bench and RSVLM-QA.
 * The curated XLRS split in `XLRS dataset curation/` has 3,999 train images (11,997 QA) and 2,001 validation images (6,003 QA).
 * A LLaVA-style MLP adapter between MoonViT and Qwen3-4B was tried first. It produced degenerate text and unreliable EOS, so the final system adapts the LLM with LoRA instead.
-* Captioning is scored with DistilBERT-embedding similarity combined with BLEU-4; numeric VQA with exp(-relative error) (`Evaluation/eval_response.py`).
+* Captioning is scored with DistilBERT-embedding similarity combined with BLEU-4; numeric VQA with exp(-23 * relative error) (`Evaluation/eval_response.py`).
 
 ## Repository Structure
 
 ```
 ISRO-GeoNLI/
 ├── app_prod.py              # Production FastAPI server (preloads models)
-├── app_dev.py               # Development server (lazy loading)
 ├── rs_pipeline.py           # Main RSPipeline class
-├── api_helpers.py           # API utilities
+├── api_helpers.py           # API utilities, query classifier, VQA answer normalizers
 ├── api_models.py            # Pydantic schemas
 │
 ├── model/                   # Model interfaces
 │   ├── model_builder.py     # VLM & SAM3 initialization
 │   ├── vlm_interface.py     # Qwen3-VL interface
-│   └── sam3_interface.py    # SAM3 interface
+│   ├── sam3_interface.py    # SAM3 interface
+│   ├── tool_calling_step_wise.py  # VQA tool-calling agent
+│   └── grounding_agent.py   # Grounding mask-selection agent (not used by the server)
 │
 ├── tasks/                   # Task handlers
 │   ├── captioning.py        # Image captioning
-│   ├── grounding.py         # Object detection
+│   ├── grounding.py         # Object grounding (used by the server)
+│   ├── grounding_w_agent.py # Agentic grounding variant
+│   ├── legacy_grounding.py  # Earlier grounding version
 │   └── vqa.py               # Visual QA
 │
 ├── utils/                   # Utilities
 │   ├── geo_calc.py          # Geometric calculations
 │   ├── visualization.py     # Annotation tools
-│   └── vqa_output_normalizer.py
+│   ├── satellite_vqa_tools.py       # Tools for the VQA agent
+│   └── grounding_selection_tools.py # Tools for the grounding agent
 │
 ├── Evaluation/              # Evaluation scripts
 ├── Finetuning_runs/         # Training scripts
@@ -110,7 +114,7 @@ curl -X POST http://localhost:8080/query \
 ## API Endpoints
 
 ### POST /process
-Structured request matching `query.json` schema. Please use this endpoint for evaluation
+Structured request matching the `sample_query.json` schema. Please use this endpoint for evaluation. Grounding responses return each `obbox` as an 8-point polygon `[x1, y1, x2, y2, x3, y3, x4, y4]` in pixels.
 
 **Request:**
 ```json

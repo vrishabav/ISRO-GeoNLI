@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from transformers import BertTokenizer, BertModel
 from typing import List, Dict, Union
-#from shapely.geometry import Polygon
+from shapely.geometry import Polygon
 import json
 import wandb
 from collections import defaultdict
@@ -435,7 +435,7 @@ def main():
         gt_map[image] = {}
         gt_map[image]['caption'] = obj['caption']
         gt_map[image]['vqa'] = obj['qa_pairs']
-        gt_map[image]['grounding'] = None
+        gt_map[image]['grounding'] = obj.get('objects')
 
     print(f"Loaded predictions. Total predictions count: {len(predictions_list)}")
     print(f"Loaded ground truth. Total ground truth count: {len(gt_list)}")
@@ -460,8 +460,8 @@ def main():
             p_map = {}
             for p_item in p_qa_list:
                 q_text = p_item.get('question', '')
-            clean_q = re.sub(r'\W+', '', q_text.lower())
-            p_map[clean_q] = str(p_item.get('answer', ''))
+                clean_q = re.sub(r'\W+', '', q_text.lower())
+                p_map[clean_q] = str(p_item.get('answer', ''))
 
             # Match with GT
             for gq in gt['vqa']:
@@ -493,12 +493,12 @@ def main():
             p_objects = pred_obj.get('objects', [])
             p_boxes = []
             for obj in p_objects:
-                if isinstance(obj, dict): p_boxes.append(obj.get('obj_corner', []))
-                elif isinstance(obj, list): p_boxes.append(obj)
+                if isinstance(obj, dict): p_boxes.append(convert_corners_to_obb(obj.get('obj_corner', [])))
+                elif isinstance(obj, list): p_boxes.append(convert_corners_to_obb(obj))
 
             g_boxes = []
             for g_item in gt['grounding']:
-                if 'obj_corner' in g_item: g_boxes.append(g_item['obj_corner'])
+                if 'obj_corner' in g_item: g_boxes.append(convert_corners_to_obb(g_item['obj_corner']))
 
             if g_boxes:
                 scores["Grounding"].append(evaluator.evaluate_grounding(p_boxes, g_boxes))

@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 # BASE_URL = "https://a2f7b83599770.notebooks.jarvislabs.net/proxy/8080/"
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://127.0.0.1:8080"
 
 PAYLOAD = {
             "input_image": {
@@ -77,24 +77,10 @@ def test_simple_query_endpoint():
     data = response.json()
 
     # ---- Extract ONLY the answer ----
-    results = data.get("results", {})
-
-    answer = None
-
-    if "attributes" in results:
-        # Numeric / semantic / binary
-        for _, v in results["attributes"].items():
-            answer = v.get("response")
-            break
-
-    elif "caption" in results:
-        answer = results["caption"].get("response")
-
-    elif "grounding" in results:
-        answer = results["grounding"].get("detections")
+    answer = data.get("response", {}).get("text")
 
     print("\n✅ Extracted Answer:")
-    print(data)
+    print(answer)
 
 
 
@@ -122,9 +108,9 @@ if __name__ == "__main__":
     print("API Test Suite - ISRO-GeoNLI")
     print("="*60)
     print("\nMake sure the server is running:")
-    print("  python run_dev.bat")
+    print("  ./run_prod.sh")
     print("  OR")
-    print("  uvicorn app_dev:app --reload --port 8000")
+    print("  uvicorn app_prod:app --host 0.0.0.0 --port 8080")
     print("\n" + "="*60)
     
     # Uncomment the tests you want to run

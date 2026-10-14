@@ -5,7 +5,7 @@ React + Vite web interface for the ISRO-GeoNLI remote sensing image analysis pla
 ## Overview
 
 A modern, responsive web application that provides:
-- User authentication (login/signup)
+- User login
 - Image upload and query interface
 - Real-time chat with ISRO-GeoNLI API
 - Session and message history management
@@ -64,6 +64,8 @@ Create a `.env` file in the `website-frontend` directory:
 VITE_API_URL=http://localhost:8001/api
 ```
 
+If `VITE_API_URL` is not set, `login.jsx` and `home.jsx` fall back to `https://isrogeonli.in:5000/api`.
+
 ## Running the Application
 
 ### Development Mode
@@ -93,22 +95,21 @@ Build output is in `dist/` directory.
 
 **home.jsx** - Main application interface with image upload and query submission
 
-**test.jsx** - Testing/demo component
+**test.jsx** - Older copy of the chat page with a manual query-type selector. It points at `http://localhost:5000/api` and is not kept in sync with the backend.
 
 ## API Integration
 
-The frontend communicates with the backend API at `http://localhost:8001/api`:
+The frontend communicates with the backend API at `VITE_API_URL`:
 
 **Endpoints:**
 - `POST /login` - User authentication
-- `POST /signup` - User registration
 - `POST /chat` - Submit query with image
-- `GET /sessions` - Get chat sessions
-- `GET /messages/{session_id}` - Get messages
+- `GET /chat-history` - Get chat sessions
+- `GET /get-history?sessionId=...` - Get messages for a session
 
 **Authentication:**
 ```javascript
-const token = localStorage.getItem('token');
+const token = sessionStorage.getItem('token');
 axios.post(url, data, {
   headers: { 'Authorization': `Bearer ${token}` }
 });

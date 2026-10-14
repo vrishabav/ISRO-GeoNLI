@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-from utils.grounding_agent import GroundingSelectionAgent
+from model.grounding_agent import GroundingSelectionAgent
 
 import logging
 

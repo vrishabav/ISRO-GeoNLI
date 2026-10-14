@@ -2,6 +2,9 @@
 __pycache__/
 *.pyc
 
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
 # Virtual environments
 prod_env/
 venv/
